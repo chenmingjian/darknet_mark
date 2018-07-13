@@ -207,8 +207,8 @@ convolutional_layer make_convolutional_layer(int batch, int h, int w, int c, int
     //scale = .02;
     //for(i = 0; i < c*n*size*size; ++i) l.weights[i] = scale*rand_uniform(-1, 1);
     for(i = 0; i < l.nweights; ++i) l.weights[i] = scale*rand_normal();
-    int out_w = convolutional_out_width(l);
-    int out_h = convolutional_out_height(l);
+    int out_w = convolutional_out_width(l);//输出的宽度
+    int out_h = convolutional_out_height(l);//输出的高度
     l.out_h = out_h;
     l.out_w = out_w;
     l.out_c = n;
@@ -249,7 +249,7 @@ convolutional_layer make_convolutional_layer(int batch, int h, int w, int c, int
         l.x = calloc(l.batch*l.outputs, sizeof(float));
         l.x_norm = calloc(l.batch*l.outputs, sizeof(float));
     }
-    if(adam){
+    if(adam){//这里为什么会有adam，对adam进行存储？
         l.m = calloc(l.nweights, sizeof(float));
         l.v = calloc(l.nweights, sizeof(float));
         l.bias_m = calloc(n, sizeof(float));
@@ -441,14 +441,14 @@ void backward_bias(float *bias_updates, float *delta, int batch, int n, int size
         }
     }
 }
-
+//在卷积层进行正向传播计算。
 void forward_convolutional_layer(convolutional_layer l, network net)
 {
     int i, j;
 
     fill_cpu(l.outputs*l.batch, 0, l.output, 1);
 
-    if(l.xnor){
+    if(l.xnor){//这个异或干什么的真相在这里，可惜我看不懂。
         binarize_weights(l.weights, l.n, l.c/l.groups*l.size*l.size, l.binary_weights);
         swap_binary(&l);
         binarize_cpu(net.input, l.c*l.h*l.w*l.batch, l.binary_input);

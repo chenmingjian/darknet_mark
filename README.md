@@ -1,7 +1,8 @@
-#Darknet learn and mark
+# Darknet learn and mark #
+
 annotate the code from the file "detector.c" in "examples" floder.
 
-#Here's the original Readme.
+## Here's the original Readme. ##
 ![Darknet Logo](http://pjreddie.com/media/files/darknet-black-small.png)
 
 # Darknet #
