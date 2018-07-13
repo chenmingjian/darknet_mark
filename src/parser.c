@@ -43,6 +43,7 @@ typedef struct{
 
 list *read_cfg(char *filename);
 
+//把简写的值，转化成固定的字符。
 LAYER_TYPE string_to_layer_type(char * type)
 {
 
@@ -123,9 +124,9 @@ typedef struct size_params{
     int w;
     int c;
     int index;
-    int time_steps;
+    int time_steps;//?
     network *net;
-} size_params;
+} size_params;//大小参数结构体？
 
 local_layer parse_local(list *options, size_params params)
 {
@@ -178,8 +179,8 @@ convolutional_layer parse_convolutional(list *options, size_params params)
 {
     int n = option_find_int(options, "filters",1);
     int size = option_find_int(options, "size",1);
-    int stride = option_find_int(options, "stride",1);
-    int pad = option_find_int_quiet(options, "pad",0);
+    int stride = option_find_int(options, "stride",1); 
+    int pad = option_find_int_quiet(options, "pad",0); // pad和padding有什么区别？
     int padding = option_find_int_quiet(options, "padding",0);
     int groups = option_find_int_quiet(options, "groups", 1);
     if(pad) padding = size/2;
@@ -195,11 +196,12 @@ convolutional_layer parse_convolutional(list *options, size_params params)
     if(!(h && w && c)) error("Layer before convolutional layer must output image.");
     int batch_normalize = option_find_int_quiet(options, "batch_normalize", 0);
     int binary = option_find_int_quiet(options, "binary", 0);
-    int xnor = option_find_int_quiet(options, "xnor", 0);
+    int xnor = option_find_int_quiet(options, "xnor", 0); //异或？这是个啥？
 
+    //高能预警，核心语句出现
     convolutional_layer layer = make_convolutional_layer(batch,h,w,c,n,groups,size,stride,padding,activation, batch_normalize, binary, xnor, params.net->adam);
-    layer.flipped = option_find_int_quiet(options, "flipped", 0);
-    layer.dot = option_find_float_quiet(options, "dot", 0);
+    layer.flipped = option_find_int_quiet(options, "flipped", 0);//翻动？
+    layer.dot = option_find_float_quiet(options, "dot", 0);//点？
 
     return layer;
 }
@@ -640,6 +642,7 @@ learning_rate_policy get_policy(char *s)
     return CONSTANT;
 }
 
+//解析'[net]'块内容。
 void parse_net_options(list *options, network *net)
 {
     net->batch = option_find_int(options, "batch",1);
@@ -661,16 +664,16 @@ void parse_net_options(list *options, network *net)
         net->eps = option_find_float(options, "eps", .0000001);
     }
 
-    net->h = option_find_int_quiet(options, "height",0);
+    net->h = option_find_int_quiet(options, "height",0);  //输入大小默认是0，[net]里面必须有长和宽的信息？
     net->w = option_find_int_quiet(options, "width",0);
     net->c = option_find_int_quiet(options, "channels",0);
     net->inputs = option_find_int_quiet(options, "inputs", net->h * net->w * net->c);
-    net->max_crop = option_find_int_quiet(options, "max_crop",net->w*2);
+    net->max_crop = option_find_int_quiet(options, "max_crop",net->w*2);// 最大裁剪么？
     net->min_crop = option_find_int_quiet(options, "min_crop",net->w);
     net->max_ratio = option_find_float_quiet(options, "max_ratio", (float) net->max_crop / net->w);
     net->min_ratio = option_find_float_quiet(options, "min_ratio", (float) net->min_crop / net->w);
     net->center = option_find_int_quiet(options, "center",0);
-    net->clip = option_find_float_quiet(options, "clip", 0);
+    net->clip = option_find_float_quiet(options, "clip", 0);//修剪。
 
     net->angle = option_find_float_quiet(options, "angle", 0);
     net->aspect = option_find_float_quiet(options, "aspect", 1);
@@ -682,7 +685,7 @@ void parse_net_options(list *options, network *net)
 
     char *policy_s = option_find_str(options, "policy", "constant");
     net->policy = get_policy(policy_s);
-    net->burn_in = option_find_int_quiet(options, "burn_in", 0);
+    net->burn_in = option_find_int_quiet(options, "burn_in", 0); //老化？
     net->power = option_find_float_quiet(options, "power", 4);
     if(net->policy == STEP){
         net->step = option_find_int(options, "step", 1);
@@ -711,13 +714,14 @@ void parse_net_options(list *options, network *net)
         net->scales = scales;
         net->steps = steps;
         net->num_steps = n;
-    } else if (net->policy == EXP){
+    } else if (net->policy == EXP){//learning_rate* gamma ^ iter
         net->gamma = option_find_float(options, "gamma", 1);
-    } else if (net->policy == SIG){
+    } else if (net->policy == SIG){//learning_rate ( 1/(1 + exp(-gamma * (iter - stepsize))))
         net->gamma = option_find_float(options, "gamma", 1);
         net->step = option_find_int(options, "step", 1);
-    } else if (net->policy == POLY || net->policy == RANDOM){
-    }
+    } else if (net->policy == POLY || net->policy == RANDOM){  //emmmm....，   这是没写完，    还是说就这样就可以。
+    }//POLY:learning_rate(1 - iter/max_iter) ^ (power)  
+    //RANDOM:代码中没有考虑
     net->max_batches = option_find_int(options, "max_batches", 0);
 }
 
@@ -727,19 +731,20 @@ int is_network(section *s)
             || strcmp(s->type, "[network]")==0);
 }
 
+//解析网络配置文件。
 network *parse_network_cfg(char *filename)
 {
-    list *sections = read_cfg(filename);
+    list *sections = read_cfg(filename);//读入cfg文件中的所有内容组成链表。
     node *n = sections->front;
     if(!n) error("Config file has no sections");
     network *net = make_network(sections->size - 1);
-    net->gpu_index = gpu_index;
+    net->gpu_index = gpu_index;//pass
     size_params params;
 
     section *s = (section *)n->val;
     list *options = s->options;
     if(!is_network(s)) error("First section must be [net] or [network]");
-    parse_net_options(options, net);
+    parse_net_options(options, net);//解析配置文件中'[net]'里面的 网络整体内容。
 
     params.h = net->h;
     params.w = net->w;
@@ -753,7 +758,7 @@ network *parse_network_cfg(char *filename)
     n = n->next;
     int count = 0;
     free_section(s);
-    fprintf(stderr, "layer     filters    size              input                output\n");
+    fprintf(stderr, "layer     filters    size              input                output\n");//手动排版厉害了。
     while(n){
         params.index = count;
         fprintf(stderr, "%5d ", count);
@@ -873,6 +878,7 @@ network *parse_network_cfg(char *filename)
     return net;
 }
 
+//读入配置文件，返回 配置 链表，配置链表是一个section的链表，每一个section是配置文件中的一小块。
 list *read_cfg(char *filename)
 {
     FILE *file = fopen(filename, "r");
@@ -885,18 +891,18 @@ list *read_cfg(char *filename)
         ++ nu;
         strip(line);
         switch(line[0]){
-            case '[':
+            case '['://如果本行为本层类型。
                 current = malloc(sizeof(section));
                 list_insert(options, current);
                 current->options = make_list();
                 current->type = line;
                 break;
-            case '\0':
+            case '\0'://空行或注释跳过。
             case '#':
             case ';':
                 free(line);
                 break;
-            default:
+            default://默认情况下读入成键值对。
                 if(!read_option(line, current->options)){
                     fprintf(stderr, "Config file error line %d, could parse: %s\n", nu, line);
                     free(line);

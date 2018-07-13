@@ -298,7 +298,7 @@ list *split_str(char *s, char delim)
     }
     return l;
 }
-
+//去除字符串中的空值、制表符、以及回车。
 void strip(char *s)
 {
     size_t i;

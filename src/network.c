@@ -49,10 +49,10 @@ load_args get_base_args(network *net)
     args.hue = net->hue;
     return args;
 }
-
+//加载网络，clear代表从0计数的标志位。
 network *load_network(char *cfg, char *weights, int clear)
 {
-    network *net = parse_network_cfg(cfg);
+    network *net = parse_network_cfg(cfg);//完整解析网络配置文件。
     if(weights && weights[0] != 0){
         load_weights(net, weights);
     }
@@ -174,6 +174,7 @@ char *get_layer_string(LAYER_TYPE a)
     return "none";
 }
 
+//为网络结构申请内存，同时为网络结构体中一一些指针申请内存。
 network *make_network(int n)
 {
     network *net = calloc(1, sizeof(network));

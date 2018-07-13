@@ -134,13 +134,13 @@ struct layer{
     int flipped;
     int inputs;
     int outputs;
-    int nweights;
+    int nweights; //weights的个数。
     int nbiases;
     int extra;
     int truths;
     int h,w,c;
     int out_h, out_w, out_c;
-    int n;
+    int n; //?
     int max_boxes;
     int groups;
     int size;
@@ -192,7 +192,7 @@ struct layer{
     float mask_scale;
     float class_scale;
     int bias_match;
-    int random;
+    int random;//是否使用随机分辨率。
     float ignore_thresh;
     float truth_thresh;
     float thresh;
@@ -429,10 +429,10 @@ typedef enum {
 } learning_rate_policy;
 
 typedef struct network{
-    int n;
+    int n;//网络的层数
     int batch;
     size_t *seen;
-    int *t;
+    int *t;//?
     float epoch;
     int subdivisions;
     layer *layers;
@@ -442,17 +442,18 @@ typedef struct network{
     float learning_rate;
     float momentum;
     float decay;
-    float gamma;
-    float scale;
-    float power;
-    int time_steps;
-    int step;
-    int max_batches;
-    float *scales;
-    int   *steps;
-    int num_steps;
-    int burn_in;
+    float gamma;//?
+    float scale;//?
+    float power;//?
+    int time_steps;//?
+    int step;//?
+    int max_batches;//?
+    float *scales;//?
+    int   *steps;//?
+    int num_steps;//?
+    int burn_in;//?
 
+    //梯度下降算法的参数。
     int adam;
     float B1;
     float B2;
@@ -460,12 +461,12 @@ typedef struct network{
 
     int inputs;
     int outputs;
-    int truths;
+    int truths;//?
     int notruth;
-    int h, w, c;
-    int max_crop;
+    int h, w, c;//c = channel
+    int max_crop;//最大裁剪w*2？或者可以说叫做
     int min_crop;
-    float max_ratio;
+    float max_ratio;//最大放的的比率
     float min_ratio;
     int center;
     float angle;
@@ -485,7 +486,7 @@ typedef struct network{
     int train;
     int index;
     float *cost;
-    float clip;
+    float clip;//？
 
 #ifdef GPU
     float *input_gpu;
@@ -563,7 +564,7 @@ typedef struct load_args{//参数结构
     int classes;
     int background;
     int scale;
-    int center;
+    int center;//?
     int coords;//坐标
     float jitter;
     float angle;
@@ -594,13 +595,13 @@ typedef struct node{
     void *val;
     struct node *next;
     struct node *prev;
-} node;
+} node;//node是一个双向链表。一个node表示，是一个emmmmm
 
 typedef struct list{
     int size;
     node *front;
     node *back;
-} list;
+} list;//list是一个连接双向链表的链表，是一个
 
 pthread_t load_data(load_args args);
 list *read_data_cfg(char *filename);

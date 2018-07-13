@@ -9,6 +9,7 @@
 
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
+//从文件中按行去除文件路径，存入链表。最后返回链表。
 list *get_paths(char *filename)
 {
     char *path;

@@ -48,7 +48,7 @@ metadata get_metadata(char *file)
     free_list(options);
     return m;
 }
-
+//从字符串s中读入键值对，存入链表中
 int read_option(char *s, list *options)
 {
     size_t i;
@@ -67,6 +67,7 @@ int read_option(char *s, list *options)
     return 1;
 }
 
+//转化成为KVP，插入链表。
 void option_insert(list *l, char *key, char *val)
 {
     kvp *p = malloc(sizeof(kvp));
@@ -76,6 +77,7 @@ void option_insert(list *l, char *key, char *val)
     list_insert(l, p);
 }
 
+//emmmm.... 遍历输出没有应用的键值对。
 void option_unused(list *l)
 {
     node *n = l->front;

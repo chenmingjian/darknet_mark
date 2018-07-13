@@ -199,7 +199,7 @@ convolutional_layer make_convolutional_layer(int batch, int h, int w, int c, int
     l.bias_updates = calloc(n, sizeof(float));
 
     l.nweights = c/groups*n*size*size;
-    l.nbiases = n;
+    l.nbiases = n;//?
 
     // float scale = 1./sqrt(size*size*c);
     float scale = sqrt(2./(size*size*c/l.groups));

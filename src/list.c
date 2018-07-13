@@ -79,6 +79,7 @@ void free_list_contents(list *l)
 	}
 }
 
+//链表转化成指针数组，每个指针引领一个数据的地址字符串。返回指针数组。
 void **list_to_array(list *l)
 {
     void **a = calloc(l->size, sizeof(void*));

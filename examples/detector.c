@@ -53,14 +53,14 @@ void train_detector(char *datacfg, char *cfgfile, char *weightfile, int *gpus, i
     args.d = &buffer;
     args.type = DETECTION_DATA;
     //args.type = INSTANCE_DATA;
-    args.threads = 64; //开64个线程，还是最多开64个线程？开64个线程！
+    args.threads = 64; //开64个线程，还是最多开64个线程？ -->开64个线程！
 
     pthread_t load_thread = load_data(args);
     double time;
     int count = 0;
     //while(i*imgs < N*120){
-    while(get_current_batch(net) < net->max_batches){
-        if(l.random && count++%10 == 0){
+    while(get_current_batch(net) < net->max_batches){//每次使用load_data函数，实现每次把batch*subdivisions加载入buffer中。
+        if(l.random && count++%10 == 0){//YOLO9000论文中是使用的没10循环，进行一次随机的分辨率改变。
             printf("Resizing\n");
             int dim = (rand() % 10 + 10) * 32; //随机一个10-20的整数 * 32 用来作为w和b的初始值。为什么？
             if (get_current_batch(net)+200 > net->max_batches) dim = 608;
@@ -69,10 +69,10 @@ void train_detector(char *datacfg, char *cfgfile, char *weightfile, int *gpus, i
             args.w = dim;
             args.h = dim;
 
-            pthread_join(load_thread, 0);
-            train = buffer;
-            free_data(train);
-            load_thread = load_data(args);//load_data?
+            pthread_join(load_thread, 0);  //等待上次加载数据完成。
+            train = buffer;     
+            free_data(train);              //释放加载的数据。   感觉这一行去掉也没有什么问题。
+            load_thread = load_data(args);//以新的 w,h 来重新加载数据。
 
             #pragma omp parallel for
             for(i = 0; i < ngpus; ++i){
@@ -81,9 +81,9 @@ void train_detector(char *datacfg, char *cfgfile, char *weightfile, int *gpus, i
             net = nets[0];
         }
         time=what_time_is_it_now();
-        pthread_join(load_thread, 0);
-        train = buffer; //
-        load_thread = load_data(args);
+        pthread_join(load_thread, 0);   
+        train = buffer; 
+        load_thread = load_data(args); //加载数据。。。是不是每10次加载就要重复加载一次。
 
         printf("Loaded: %lf seconds\n", what_time_is_it_now()-time);
 
@@ -96,11 +96,11 @@ void train_detector(char *datacfg, char *cfgfile, char *weightfile, int *gpus, i
             loss = train_networks(nets, ngpus, train, 4);
         }
 #else
-        loss = train_network(net, train);//buffer里没有数据如何训练?在另一个线程载入? 答：在其他64个线程中装填DATA给buffer
+        loss = train_network(net, train);//训练网络，得到本次网络的loss。
 #endif
         if (avg_loss < 0) //初始化为-1
             avg_loss = loss;
-        avg_loss = avg_loss*.9 + loss*.1;
+        avg_loss = avg_loss*.9 + loss*.1;//计算平均loss
 
         i = get_current_batch(net);
         printf("%ld: %f, %f avg, %f rate, %lf seconds, %d images\n", get_current_batch(net), loss, avg_loss, get_current_rate(net), what_time_is_it_now()-time, i*imgs);
@@ -127,10 +127,10 @@ void train_detector(char *datacfg, char *cfgfile, char *weightfile, int *gpus, i
 #endif
     char buff[256];
     sprintf(buff, "%s/%s_final.weights", backup_directory, base);
-    save_weights(net, buff);
+    save_weights(net, buff);//最终保存
 }
 
-// 此函数何时调用？干什么的？
+
 static int get_coco_image_id(char *filename)
 {
     char *p = strrchr(filename, '/');
@@ -651,7 +651,7 @@ void run_detector(int argc, char **argv)
     char *weights = (argc > 5) ? argv[5] : 0;
     char *filename = (argc > 6) ? argv[6]: 0;
     if(0==strcmp(argv[2], "test")) test_detector(datacfg, cfg, weights, filename, thresh, hier_thresh, outfile, fullscreen);
-    else if(0==strcmp(argv[2], "train")) train_detector(datacfg, cfg, weights, gpus, ngpus, clear);
+    else if(0==strcmp(argv[2], "train")) train_detector(datacfg, cfg, weights, gpus, ngpus, clear);//clear代表什么？
     else if(0==strcmp(argv[2], "valid")) validate_detector(datacfg, cfg, weights, outfile);
     else if(0==strcmp(argv[2], "valid2")) validate_detector_flip(datacfg, cfg, weights, outfile);
     else if(0==strcmp(argv[2], "recall")) validate_detector_recall(cfg, weights);
