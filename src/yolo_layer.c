@@ -10,18 +10,19 @@
 #include <string.h>
 #include <stdlib.h>
 
+//新建yolo层，返回新建层。
 layer make_yolo_layer(int batch, int w, int h, int n, int total, int *mask, int classes)
 {
     int i;
     layer l = {0};
     l.type = YOLO;
 
-    l.n = n;
+    l.n = n;//n 是yolo层cfg中的num。
     l.total = total;
     l.batch = batch;
     l.h = h;
     l.w = w;
-    l.c = n*(classes + 4 + 1);
+    l.c = n*(classes + 4 + 1);//c代表组最后输出的张量的个数么？-->啊最后一层的channel个数！
     l.out_w = l.w;
     l.out_h = l.h;
     l.out_c = l.c;
@@ -36,9 +37,9 @@ layer make_yolo_layer(int batch, int w, int h, int n, int total, int *mask, int 
         }
     }
     l.bias_updates = calloc(n*2, sizeof(float));
-    l.outputs = h*w*n*(classes + 4 + 1);
-    l.inputs = l.outputs;
-    l.truths = 90*(4 + 1);
+    l.outputs = h*w*n*(classes + 4 + 1); //这边直接写 l.h * l.w * l.c （长*宽*通道数）这样表达会不会更清楚一点。
+    l.inputs = l.outputs;//为什么本层input=output。
+    l.truths = 90*(4 + 1);//固定值？ 什么意思？
     l.delta = calloc(batch*l.outputs, sizeof(float));
     l.output = calloc(batch*l.outputs, sizeof(float));
     for(i = 0; i < total*2; ++i){
@@ -80,13 +81,14 @@ void resize_yolo_layer(layer *l, int w, int h)
 #endif
 }
 
+//获得的box和anchor box有什么关系？
 box get_yolo_box(float *x, float *biases, int n, int index, int i, int j, int lw, int lh, int w, int h, int stride)
 {
     box b;
     b.x = (i + x[index + 0*stride]) / lw;
     b.y = (j + x[index + 1*stride]) / lh;
-    b.w = exp(x[index + 2*stride]) * biases[2*n]   / w;
-    b.h = exp(x[index + 3*stride]) * biases[2*n+1] / h;
+    b.w = exp(x[index + 2*stride]) * biases[2*n]   / w; //w是相对对数的比例？
+    b.h = exp(x[index + 3*stride]) * biases[2*n+1] / h; //为什么要设置成这样？
     return b;
 }
 
@@ -122,6 +124,8 @@ void delta_yolo_class(float *output, float *delta, int index, int class, int cla
     }
 }
 
+//入口索引？
+//这里转化成了啥？
 static int entry_index(layer l, int batch, int location, int entry)
 {
     int n =   location / (l.w*l.h);
@@ -129,10 +133,12 @@ static int entry_index(layer l, int batch, int location, int entry)
     return batch*l.outputs + n*l.w*l.h*(4+l.classes+1) + entry*l.w*l.h + loc;
 }
 
+//正向传播，计算YOLO层的结果
 void forward_yolo_layer(const layer l, network net)
 {
     int i,j,b,t,n;
     memcpy(l.output, net.input, l.outputs*l.batch*sizeof(float));
+    //拷贝网络的input到本层的output。
 
 #ifndef GPU
     for (b = 0; b < l.batch; ++b){
@@ -145,8 +151,8 @@ void forward_yolo_layer(const layer l, network net)
     }
 #endif
 
-    memset(l.delta, 0, l.outputs * l.batch * sizeof(float));
-    if(!net.train) return;
+    memset(l.delta, 0, l.outputs * l.batch * sizeof(float));//设置delta中第*个为0。干嘛的？
+    if(!net.train) return;//不是在训练直接返回。
     float avg_iou = 0;
     float recall = 0;
     float recall75 = 0;
@@ -156,23 +162,25 @@ void forward_yolo_layer(const layer l, network net)
     int count = 0;
     int class_count = 0;
     *(l.cost) = 0;
-    for (b = 0; b < l.batch; ++b) {
-        for (j = 0; j < l.h; ++j) {
-            for (i = 0; i < l.w; ++i) {
-                for (n = 0; n < l.n; ++n) {
+    for (b = 0; b < l.batch; ++b) {//batch中的个数据做一遍下面是事。
+        for (j = 0; j < l.h; ++j) {//遍历高度中的每一行。
+            for (i = 0; i < l.w; ++i) {//遍历每一行中的每一个通道。
+                for (n = 0; n < l.n; ++n) {// ？n代表什么？ n可能是每个框负责预测的bounding box数。
                     int box_index = entry_index(l, b, n*l.w*l.h + j*l.w + i, 0);
                     box pred = get_yolo_box(l.output, l.biases, l.mask[n], box_index, i, j, l.w, l.h, net.w, net.h, l.w*l.h);
+                    //获得预测的box?
                     float best_iou = 0;
                     int best_t = 0;
                     for(t = 0; t < l.max_boxes; ++t){
                         box truth = float_to_box(net.truth + t*(4 + 1) + b*l.truths, 1);
                         if(!truth.x) break;
-                        float iou = box_iou(pred, truth);
+                        float iou = box_iou(pred, truth);//计算IOU
                         if (iou > best_iou) {
                             best_iou = iou;
                             best_t = t;
                         }
                     }
+                    //感觉我这么看永远都看不懂！
                     int obj_index = entry_index(l, b, n*l.w*l.h + j*l.w + i, 4);
                     avg_anyobj += l.output[obj_index];
                     l.delta[obj_index] = 0 - l.output[obj_index];

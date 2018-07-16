@@ -92,6 +92,7 @@ float activate(float x, ACTIVATION a)
     return 0;
 }
 
+//对某array中的每个数进行激活。
 void activate_array(float *x, const int n, const ACTIVATION a)
 {
     int i;

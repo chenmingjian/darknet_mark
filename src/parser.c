@@ -281,6 +281,7 @@ softmax_layer parse_softmax(list *options, size_params params)
     return layer;
 }
 
+//读入掩码和anchors的个数，改变本层num的数值，返回本层掩码数组。
 int *parse_yolo_mask(char *a, int *num)
 {
     int *mask = 0;
@@ -302,6 +303,7 @@ int *parse_yolo_mask(char *a, int *num)
     return mask;
 }
 
+//解析yolov3配置文件中的yolo层。
 layer parse_yolo(list *options, size_params params)
 {
     int classes = option_find_int(options, "classes", 20);
@@ -311,7 +313,7 @@ layer parse_yolo(list *options, size_params params)
     char *a = option_find_str(options, "mask", 0);
     int *mask = parse_yolo_mask(a, &num);
     layer l = make_yolo_layer(params.batch, params.w, params.h, num, total, mask, classes);
-    assert(l.outputs == params.inputs);
+    assert(l.outputs == params.inputs);//emmm...输出要等于输入。
 
     l.max_boxes = option_find_int_quiet(options, "max",90);
     l.jitter = option_find_float(options, "jitter", .2);

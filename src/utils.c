@@ -571,6 +571,7 @@ void translate_array(float *a, int n, float s)
     }
 }
 
+//计算 sum square error?
 float mag_array(float *a, int n)
 {
     int i;
@@ -630,6 +631,7 @@ int max_index(float *a, int n)
     return max_i;
 }
 
+//
 int int_index(int *a, int val, int n)
 {
     int i;

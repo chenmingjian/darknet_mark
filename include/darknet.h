@@ -137,7 +137,7 @@ struct layer{
     int nweights; //weights的个数。
     int nbiases;
     int extra;
-    int truths;
+    int truths;//truths代表什么？
     int h,w,c;
     int out_h, out_w, out_c;
     int n; //?
@@ -180,7 +180,7 @@ struct layer{
     int log;
     int tanh;
     int *mask;
-    int total;
+    int total;//？？？？
 
     float alpha;
     float beta;
@@ -239,7 +239,7 @@ struct layer{
     float * weights;
     float * weight_updates;
 
-    float * delta;
+    float * delta;//layer中的delta是什么的变化？
     float * output;
     float * loss;
     float * squared;
@@ -484,7 +484,7 @@ typedef struct network{
     float *delta;
     float *workspace;
     int train;
-    int index;
+    int index;//但当前网络的处于第几层。
     float *cost;
     float clip;//？
 

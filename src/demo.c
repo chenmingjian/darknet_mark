@@ -125,10 +125,11 @@ void *detect_in_thread(void *ptr)
 
     if (nms > 0) do_nms_obj(dets, nboxes, l.classes, nms);
 
-    printf("\033[2J");
-    printf("\033[1;1H");
+    //printf("\033[2J");
+    //printf("\033[1;1H");
     printf("\nFPS:%.1f\n",fps);
     printf("Objects:\n\n");
+    printf("bbox x = %f, y = %f, w = %f, h = %f\n", dets.bbox.x,dets.bbox.y,dets.bbox.w，dets.bbox.h)
     image display = buff[(buff_index+2) % 3];
     draw_detections(display, dets, nboxes, demo_thresh, demo_names, demo_alphabet, demo_classes);
     free_detections(dets, nboxes);
@@ -146,22 +147,24 @@ void *fetch_in_thread(void *ptr)
     return 0;
 }
 
+//显示线程云行函数。
+//
 void *display_in_thread(void *ptr)
 {
     show_image_cv(buff[(buff_index + 1)%3], "Demo", ipl);
-    int c = cvWaitKey(1);
+    int c = cvWaitKey(1);//等1ms按键。等不到继续走。
     if (c != -1) c = c%256;
-    if (c == 27) {
+    if (c == 27) {//esc
         demo_done = 1;
         return 0;
-    } else if (c == 82) {
+    } else if (c == 82) {//r 阈值赠加0.02
         demo_thresh += .02;
-    } else if (c == 84) {
+    } else if (c == 84) {//t 阈值减少0.02，最小值为0.02
         demo_thresh -= .02;
         if(demo_thresh <= .02) demo_thresh = .02;
-    } else if (c == 83) {
+    } else if (c == 83) {//s  emmmm?
         demo_hier += .02;
-    } else if (c == 81) {
+    } else if (c == 81) {//q  emmmm?
         demo_hier -= .02;
         if(demo_hier <= .0) demo_hier = .0;
     }

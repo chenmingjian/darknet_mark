@@ -186,6 +186,7 @@ network *make_network(int n)
     return net;
 }
 
+//计算正向传播的结构
 void forward_network(network *netp)
 {
 #ifdef GPU
@@ -200,7 +201,7 @@ void forward_network(network *netp)
         net.index = i;
         layer l = net.layers[i];
         if(l.delta){
-            fill_cpu(l.outputs * l.batch, 0, l.delta, 1);
+            fill_cpu(l.outputs * l.batch, 0, l.delta, 1); //用0填充l.delta
         }
         l.forward(l, net);
         net.input = l.output;
@@ -494,17 +495,17 @@ void top_predictions(network *net, int k, int *index)
     top_k(net->output, net->outputs, k, index);
 }
 
-
+//根据网络和输入计算输出
 float *network_predict(network *net, float *input)
 {
-    network orig = *net;
+    network orig = *net;//复制备份一遍原网络
     net->input = input;
     net->truth = 0;
     net->train = 0;
     net->delta = 0;
-    forward_network(net);
+    forward_network(net);//计算
     float *out = net->output;
-    *net = orig;
+    *net = orig;      //恢复之前的网络。
     return out;
 }
 
