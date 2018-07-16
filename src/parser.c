@@ -770,54 +770,54 @@ network *parse_network_cfg(char *filename)
             l = parse_convolutional(options, params);
         }else if(lt == DECONVOLUTIONAL){
             l = parse_deconvolutional(options, params);
-        }else if(lt == LOCAL){
+        }else if(lt == LOCAL){//v2、v3 版本的配置文件中没有此层。
             l = parse_local(options, params);
-        }else if(lt == ACTIVE){
+        }else if(lt == ACTIVE){//v2、v3 版本的配置文件中没有此层。
             l = parse_activation(options, params);
-        }else if(lt == LOGXENT){
+        }else if(lt == LOGXENT){//v2、v3 版本的配置文件中没有此层。
             l = parse_logistic(options, params);
-        }else if(lt == L2NORM){
+        }else if(lt == L2NORM){ //l2正则化。
             l = parse_l2norm(options, params);
-        }else if(lt == RNN){
+        }else if(lt == RNN){ //循环神经网络。
             l = parse_rnn(options, params);
-        }else if(lt == GRU){
+        }else if(lt == GRU){// RNN的衍生物，Gate Recurrent Unit，性能与LSTM相差无几。
             l = parse_gru(options, params);
-        }else if (lt == LSTM) {
+        }else if (lt == LSTM) {//Long Short-Term Memory
             l = parse_lstm(options, params);
-        }else if(lt == CRNN){
+        }else if(lt == CRNN){//卷积循环神经网络。
             l = parse_crnn(options, params);
-        }else if(lt == CONNECTED){
+        }else if(lt == CONNECTED){//emmmm
             l = parse_connected(options, params);
-        }else if(lt == CROP){
+        }else if(lt == CROP){//emmmm
             l = parse_crop(options, params);
-        }else if(lt == COST){
+        }else if(lt == COST){//单独计算cost的一层？
             l = parse_cost(options, params);
-        }else if(lt == REGION){
+        }else if(lt == REGION){//yolov3中没有使用，yolov2的最后一层。yolov3的最后一层是yolo层。
             l = parse_region(options, params);
-        }else if(lt == YOLO){
+        }else if(lt == YOLO){//yolo
             l = parse_yolo(options, params);
-        }else if(lt == DETECTION){
+        }else if(lt == DETECTION){//emmmm，检测层？
             l = parse_detection(options, params);
-        }else if(lt == SOFTMAX){
+        }else if(lt == SOFTMAX){//softmax
             l = parse_softmax(options, params);
             net->hierarchy = l.softmax_tree;
-        }else if(lt == NORMALIZATION){
+        }else if(lt == NORMALIZATION){//归一化层。
             l = parse_normalization(options, params);
-        }else if(lt == BATCHNORM){
+        }else if(lt == BATCHNORM){//BN层。
             l = parse_batchnorm(options, params);
-        }else if(lt == MAXPOOL){
+        }else if(lt == MAXPOOL){//yolov2中使用5个maxpooling，yolov3中没有使用。
             l = parse_maxpool(options, params);
-        }else if(lt == REORG){
+        }else if(lt == REORG){//emmmm...重组？
             l = parse_reorg(options, params);
         }else if(lt == AVGPOOL){
             l = parse_avgpool(options, params);
-        }else if(lt == ROUTE){
+        }else if(lt == ROUTE){//yolov2,2次，yolov3，4次。
             l = parse_route(options, params, net);
-        }else if(lt == UPSAMPLE){
+        }else if(lt == UPSAMPLE){//上采样层？
             l = parse_upsample(options, params, net);
         }else if(lt == SHORTCUT){
             l = parse_shortcut(options, params, net);
-        }else if(lt == DROPOUT){
+        }else if(lt == DROPOUT){//没再用了。
             l = parse_dropout(options, params);
             l.output = net->layers[count-1].output;
             l.delta = net->layers[count-1].delta;

@@ -186,9 +186,9 @@ void scal_cpu(int N, float ALPHA, float *X, int INCX)
     int i;
     for(i = 0; i < N; ++i) X[i*INCX] *= ALPHA;
 }
-
+//使用CPU把X填充为ALPHA
 void fill_cpu(int N, float ALPHA, float *X, int INCX)
-{
+{// INCX是什么意思？用来跳跃填充？
     int i;
     for(i = 0; i < N; ++i) X[i*INCX] = ALPHA;
 }
