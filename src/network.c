@@ -211,7 +211,7 @@ void forward_network(network *netp)
     }
     calc_network_cost(netp);
 }
-
+//更新网络偶参数。
 void update_network(network *netp)
 {
 #ifdef GPU
@@ -237,11 +237,12 @@ void update_network(network *netp)
     for(i = 0; i < net.n; ++i){
         layer l = net.layers[i];
         if(l.update){
-            l.update(l, a);
+            l.update(l, a);//逐层更新。
         }
     }
 }
 
+//计算网络的cost
 void calc_network_cost(network *netp)
 {
     network net = *netp;
@@ -262,6 +263,7 @@ int get_predicted_class_network(network *net)
     return max_index(net->output, net->outputs);
 }
 
+//反向传播计算梯度。
 void backward_network(network *netp)
 {
 #ifdef GPU
@@ -317,11 +319,12 @@ float train_network(network *net, data d)
 {
     assert(d.X.rows % net->batch == 0);
     int batch = net->batch;
-    int n = d.X.rows / batch;
+    int n = d.X.rows / batch; //n 是不是等于subdivisions？ -->在单GPU的测试下这个结论是正确的。
+
 
     int i;
     float sum = 0;
-    for(i = 0; i < n; ++i){
+    for(i = 0; i < n; ++i){//每一次循环训练一个batch
         get_next_batch(d, batch, i*batch, net->input, net->truth);
         float err = train_network_datum(net);
         sum += err;
