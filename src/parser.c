@@ -963,7 +963,7 @@ void save_convolutional_weights(layer l, FILE *fp)
     fwrite(l.biases, sizeof(float), l.n, fp);
     if (l.batch_normalize){
         fwrite(l.scales, sizeof(float), l.n, fp);
-        fwrite(l.rolling_mean, sizeof(float), l.n, fp);
+        fwrite(l.rolling_mean, sizeof(float), l.n, fp);//滑动的均值和方差才是最后觉得可信的结果。
         fwrite(l.rolling_variance, sizeof(float), l.n, fp);
     }
     fwrite(l.weights, sizeof(float), num, fp);
@@ -1009,9 +1009,9 @@ void save_weights_upto(network *net, char *filename, int cutoff)
     FILE *fp = fopen(filename, "wb");
     if(!fp) file_error(filename);
 
-    int major = 0;//主要的
-    int minor = 2;//次要的
-    int revision = 0;
+    int major = 0;//主要版本号？
+    int minor = 2;//次级版本号？
+    int revision = 0;//修正次数？
     fwrite(&major, sizeof(int), 1, fp);
     fwrite(&minor, sizeof(int), 1, fp);
     fwrite(&revision, sizeof(int), 1, fp);
@@ -1057,7 +1057,7 @@ void save_weights_upto(network *net, char *filename, int cutoff)
             save_convolutional_weights(*(l.input_layer), fp);
             save_convolutional_weights(*(l.self_layer), fp);
             save_convolutional_weights(*(l.output_layer), fp);
-        } if(l.type == LOCAL){
+        } if(l.type == LOCAL){//LOCAL是干嘛的？
 #ifdef GPU
             if(gpu_index >= 0){
                 pull_local_layer(l);
@@ -1209,7 +1209,7 @@ void load_convolutional_weights(layer l, FILE *fp)
 #endif
 }
 
-
+//加载weights从第start层，加载到第cutoff层。
 void load_weights_upto(network *net, char *filename, int start, int cutoff)
 {
 #ifdef GPU
@@ -1222,13 +1222,13 @@ void load_weights_upto(network *net, char *filename, int start, int cutoff)
     FILE *fp = fopen(filename, "rb");
     if(!fp) file_error(filename);
 
-    int major;
-    int minor;
-    int revision;
+    int major;//主要的
+    int minor;//次要的
+    int revision;//修正
     fread(&major, sizeof(int), 1, fp);
     fread(&minor, sizeof(int), 1, fp);
     fread(&revision, sizeof(int), 1, fp);
-    if ((major*10 + minor) >= 2 && major < 1000 && minor < 1000){
+    if ((major*10 + minor) >= 2 && major < 1000 && minor < 1000){//这个事干嘛的，根本没用到啊。
         fread(net->seen, sizeof(size_t), 1, fp);
     } else {
         int iseen = 0;
@@ -1300,6 +1300,7 @@ void load_weights_upto(network *net, char *filename, int start, int cutoff)
     fclose(fp);
 }
 
+//加载weights文件。
 void load_weights(network *net, char *filename)
 {
     load_weights_upto(net, filename, 0, net->n);
