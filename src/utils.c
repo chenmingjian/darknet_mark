@@ -278,6 +278,7 @@ void malloc_error()
     exit(-1);
 }
 
+//文件打不开，报错。
 void file_error(char *s)
 {
     fprintf(stderr, "Couldn't open file: %s\n", s);

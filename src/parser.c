@@ -997,6 +997,7 @@ void save_connected_weights(layer l, FILE *fp)
     }
 }
 
+//保存网络保存到第cutoff层
 void save_weights_upto(network *net, char *filename, int cutoff)
 {
 #ifdef GPU
@@ -1008,8 +1009,8 @@ void save_weights_upto(network *net, char *filename, int cutoff)
     FILE *fp = fopen(filename, "wb");
     if(!fp) file_error(filename);
 
-    int major = 0;
-    int minor = 2;
+    int major = 0;//主要的
+    int minor = 2;//次要的
     int revision = 0;
     fwrite(&major, sizeof(int), 1, fp);
     fwrite(&minor, sizeof(int), 1, fp);
@@ -1070,6 +1071,8 @@ void save_weights_upto(network *net, char *filename, int cutoff)
     }
     fclose(fp);
 }
+
+//保存weights
 void save_weights(network *net, char *filename)
 {
     save_weights_upto(net, filename, net->n);
