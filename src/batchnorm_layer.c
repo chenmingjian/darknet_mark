@@ -135,20 +135,24 @@ void resize_batchnorm_layer(layer *layer, int w, int h)
 //前相传播实现BN，
 void forward_batchnorm_layer(layer l, network net)
 {
+    //如果本层为BN层当前网络的输入等于本层的输出
     if(l.type == BATCHNORM) copy_cpu(l.outputs*l.batch, net.input, 1, l.output, 1);
+    //当前layer的输出 等于 当前层的输入。
     copy_cpu(l.outputs*l.batch, l.output, 1, l.x, 1);
     if(net.train){
         mean_cpu(l.output, l.batch, l.out_c, l.out_h*l.out_w, l.mean);
         variance_cpu(l.output, l.mean, l.batch, l.out_c, l.out_h*l.out_w, l.variance);
 
+        //这4行在干嘛？
+        //可能是计算滑动均值的方法调整mean和variance
         scal_cpu(l.out_c, .99, l.rolling_mean, 1);
         axpy_cpu(l.out_c, .01, l.mean, 1, l.rolling_mean, 1);
         scal_cpu(l.out_c, .99, l.rolling_variance, 1);
         axpy_cpu(l.out_c, .01, l.variance, 1, l.rolling_variance, 1);
-
+        
         normalize_cpu(l.output, l.mean, l.variance, l.batch, l.out_c, l.out_h*l.out_w);   
         copy_cpu(l.outputs*l.batch, l.output, 1, l.x_norm, 1);
-    } else {
+    } else {//如果没在训练，
         normalize_cpu(l.output, l.rolling_mean, l.rolling_variance, l.batch, l.out_c, l.out_h*l.out_w);
     }
     scale_bias(l.output, l.scales, l.batch, l.out_c, l.out_h*l.out_w);
