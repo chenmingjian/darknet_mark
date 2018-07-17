@@ -37,8 +37,8 @@ layer make_yolo_layer(int batch, int w, int h, int n, int total, int *mask, int 
         }
     }
     l.bias_updates = calloc(n*2, sizeof(float));
-    l.outputs = h*w*n*(classes + 4 + 1); //这边直接写 l.h * l.w * l.c （长*宽*通道数）这样表达会不会更清楚一点。
-    l.inputs = l.outputs;//为什么本层input=output。
+    l.outputs = h*w*n*(classes + 4 + 1); //这边直接写 l.h * l.w * l.c （长*宽*通道数）这样表达会不会更清楚一点?
+    l.inputs = l.outputs;//为什么本层input=output?
     l.truths = 90*(4 + 1);//固定值？ 什么意思？
     l.delta = calloc(batch*l.outputs, sizeof(float));
     l.output = calloc(batch*l.outputs, sizeof(float));

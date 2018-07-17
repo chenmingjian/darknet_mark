@@ -239,7 +239,7 @@ struct layer{
     float * weights;
     float * weight_updates;
 
-    float * delta;//layer中的delta是什么的变化？
+    float * delta;//layer中的delta是什么的变化？-->
     float * output;
     float * loss;
     float * squared;
