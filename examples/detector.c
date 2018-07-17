@@ -61,7 +61,7 @@ void train_detector(char *datacfg, char *cfgfile, char *weightfile, int *gpus, i
     //while(i*imgs < N*120){
     while(get_current_batch(net) < net->max_batches){//每次使用load_data函数，实现每次把batch*subdivisions加载入buffer中。
         if(l.random && count++%10 == 0){//YOLO9000论文中是使用的没10循环，进行一次随机的分辨率改变。
-            printf("Resizing\n");
+            printf("Resizing\n");   //网络如何适应这个变化？
             int dim = (rand() % 10 + 10) * 32; //随机一个10-20的整数 * 32 用来作为w和b的初始值。为什么？
             if (get_current_batch(net)+200 > net->max_batches) dim = 608;
             //int dim = (rand() % 4 + 16) * 32;
@@ -607,10 +607,10 @@ void run_detector(int argc, char **argv)
 {
     char *prefix = find_char_arg(argc, argv, "-prefix", 0);
     float thresh = find_float_arg(argc, argv, "-thresh", .5);
-    float hier_thresh = find_float_arg(argc, argv, "-hier", .5);
+    float hier_thresh = find_float_arg(argc, argv, "-hier", .5);//层次阈值？
     int cam_index = find_int_arg(argc, argv, "-c", 0);
-    int frame_skip = find_int_arg(argc, argv, "-s", 0);
-    int avg = find_int_arg(argc, argv, "-avg", 3);
+    int frame_skip = find_int_arg(argc, argv, "-s", 0);//跳帧？
+    int avg = find_int_arg(argc, argv, "-avg", 3);//带代码中没有用到过。
     if(argc < 4){
         fprintf(stderr, "usage: %s %s [train/test/valid] [cfg] [weights (optional)]\n", argv[0], argv[1]);
         return;

@@ -132,6 +132,7 @@ void resize_batchnorm_layer(layer *layer, int w, int h)
     fprintf(stderr, "Not implemented\n");
 }
 
+//前相传播实现BN，
 void forward_batchnorm_layer(layer l, network net)
 {
     if(l.type == BATCHNORM) copy_cpu(l.outputs*l.batch, net.input, 1, l.output, 1);
