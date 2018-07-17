@@ -1,5 +1,6 @@
 /*
+!*.md
 !.gitignore
-!include
-!examples
-!src
+!/include/
+!/examples/
+!/src/
