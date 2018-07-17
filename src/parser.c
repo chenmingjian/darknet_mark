@@ -1295,6 +1295,7 @@ void load_weights_upto(network *net, char *filename, int start, int cutoff)
             }
 #endif
         }
+        printf("loadweights: %d layers\n", i);
     }
     fprintf(stderr, "Done!\n");
     fclose(fp);
