@@ -137,10 +137,10 @@ struct layer{
     int nweights; //weights的个数。
     int nbiases;
     int extra;
-    int truths;//truths代表什么？
+    int truths;//truth的个数。
     int h,w,c;
     int out_h, out_w, out_c;
-    int n; //?
+    int n; //带表当前层中预测的box的个数。
     int max_boxes;
     int groups;
     int size;

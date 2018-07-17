@@ -88,6 +88,7 @@ void do_nms_sort(detection *dets, int total, int classes, float thresh)
     }
 }
 
+//float数组转化成box
 box float_to_box(float *f, int stride)
 {
     box b = {0};

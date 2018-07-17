@@ -307,11 +307,11 @@ int *parse_yolo_mask(char *a, int *num)
 layer parse_yolo(list *options, size_params params)
 {
     int classes = option_find_int(options, "classes", 20);
-    int total = option_find_int(options, "num", 1);
+    int total = option_find_int(options, "num", 1);//total = 9,9个anchor box
     int num = total;
 
     char *a = option_find_str(options, "mask", 0);
-    int *mask = parse_yolo_mask(a, &num);
+    int *mask = parse_yolo_mask(a, &num);//改变num的值为3
     layer l = make_yolo_layer(params.batch, params.w, params.h, num, total, mask, classes);
     assert(l.outputs == params.inputs);//emmm...输出要等于输入。
 

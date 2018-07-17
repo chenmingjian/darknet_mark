@@ -206,7 +206,7 @@ void forward_network(network *netp)
         l.forward(l, net);
         net.input = l.output;
         if(l.truth) {
-            net.truth = l.output;
+            net.truth = l.output;//正向传播过程中，net.truth等于上一层的输出？
         }
     }
     calc_network_cost(netp);

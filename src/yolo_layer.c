@@ -81,14 +81,14 @@ void resize_yolo_layer(layer *l, int w, int h)
 #endif
 }
 
-//获得的box和anchor box有什么关系？
+//通过anchor与预测值的计算，获得最终的结果。
 box get_yolo_box(float *x, float *biases, int n, int index, int i, int j, int lw, int lh, int w, int h, int stride)
 {
     box b;
     b.x = (i + x[index + 0*stride]) / lw;
     b.y = (j + x[index + 1*stride]) / lh;
-    b.w = exp(x[index + 2*stride]) * biases[2*n]   / w; //w是相对对数的比例？
-    b.h = exp(x[index + 3*stride]) * biases[2*n+1] / h; //为什么要设置成这样？
+    b.w = exp(x[index + 2*stride]) * biases[2*n]   / w; //w是相对对数的比例？  -->YOLOv2公式。
+    b.h = exp(x[index + 3*stride]) * biases[2*n+1] / h; 
     return b;
 }
 
@@ -165,22 +165,23 @@ void forward_yolo_layer(const layer l, network net)
     for (b = 0; b < l.batch; ++b) {//batch中的个数据做一遍下面是事。
         for (j = 0; j < l.h; ++j) {//遍历高度中的每一行。
             for (i = 0; i < l.w; ++i) {//遍历每一行中的每一个通道。
-                for (n = 0; n < l.n; ++n) {// ？n代表什么？ n可能是每个框负责预测的bounding box数。
-                    int box_index = entry_index(l, b, n*l.w*l.h + j*l.w + i, 0);
+                for (n = 0; n < l.n; ++n) {//anchor的个数，这YOLOv3中的为3。
+                    int box_index = entry_index(l, b, n*l.w*l.h + j*l.w + i, 0);//当前的box是第几个anchor。
                     box pred = get_yolo_box(l.output, l.biases, l.mask[n], box_index, i, j, l.w, l.h, net.w, net.h, l.w*l.h);
-                    //获得预测的box?
+                    //获得预测的边界框。
                     float best_iou = 0;
                     int best_t = 0;
                     for(t = 0; t < l.max_boxes; ++t){
-                        box truth = float_to_box(net.truth + t*(4 + 1) + b*l.truths, 1);
-                        if(!truth.x) break;
+                        box truth = float_to_box(net.truth + t*(4 + 1) + b*l.truths, 1);//困惑！！！！！！！
+                        //整个网络的truth的起始位置 + 当前的box*每个box有5个值 + 第几个batch*l.truths
+                        if(!truth.x) break;//没有truth，跳出。
                         float iou = box_iou(pred, truth);//计算IOU
                         if (iou > best_iou) {
                             best_iou = iou;
                             best_t = t;
                         }
                     }
-                    //感觉我这么看永远都看不懂！
+
                     int obj_index = entry_index(l, b, n*l.w*l.h + j*l.w + i, 4);
                     avg_anyobj += l.output[obj_index];
                     l.delta[obj_index] = 0 - l.output[obj_index];
