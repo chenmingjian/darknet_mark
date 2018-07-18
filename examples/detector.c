@@ -33,10 +33,10 @@ void train_detector(char *datacfg, char *cfgfile, char *weightfile, int *gpus, i
     printf("Learning Rate: %g, Momentum: %g, Decay: %g\n", net->learning_rate, net->momentum, net->decay);
     data train, buffer;
 
-    layer l = net->layers[net->n - 1];
+    layer l = net->layers[net->n - 1];//l 初始化为网络的最后一层。
 
-    int classes = l.classes;
-    float jitter = l.jitter;
+    int classes = l.classes; //从最后一层中读取类别的个数，
+    float jitter = l.jitter; //以及抖动的系数。
 
     list *plist = get_paths(train_images);
     //int N = plist->size;
@@ -46,7 +46,7 @@ void train_detector(char *datacfg, char *cfgfile, char *weightfile, int *gpus, i
     args.coords = l.coords;
     args.paths = paths;
     args.n = imgs;
-    args.m = plist->size;//训练数据集的数目
+    args.m = plist->size;
     args.classes = classes;
     args.jitter = jitter;
     args.num_boxes = l.max_boxes;//B的个数
@@ -61,7 +61,7 @@ void train_detector(char *datacfg, char *cfgfile, char *weightfile, int *gpus, i
     //while(i*imgs < N*120){
     while(get_current_batch(net) < net->max_batches){//每次使用load_data函数，实现每次把batch*subdivisions加载入buffer中。
         if(l.random && count++%10 == 0){//YOLO9000论文中是使用的没10循环，进行一次随机的分辨率改变。
-            printf("Resizing\n");   //网络如何适应这个变化？
+            printf("Resizing\n");   //网络如何适应这个变化？？？？？？？？？？？？？？？？？？
             int dim = (rand() % 10 + 10) * 32; //随机一个10-20的整数 * 32 用来作为w和b的初始值。为什么？
             if (get_current_batch(net)+200 > net->max_batches) dim = 608;
             //int dim = (rand() % 4 + 16) * 32;
@@ -610,7 +610,7 @@ void run_detector(int argc, char **argv)
     float hier_thresh = find_float_arg(argc, argv, "-hier", .5);//层次阈值？
     int cam_index = find_int_arg(argc, argv, "-c", 0);
     int frame_skip = find_int_arg(argc, argv, "-s", 0);//跳帧？
-    int avg = find_int_arg(argc, argv, "-avg", 3);//带代码中没有用到过。
+    int avg = find_int_arg(argc, argv, "-avg", 3);//带代码中没有用，被注释掉了。
     if(argc < 4){
         fprintf(stderr, "usage: %s %s [train/test/valid] [cfg] [weights (optional)]\n", argv[0], argv[1]);
         return;

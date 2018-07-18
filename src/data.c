@@ -40,17 +40,18 @@ char **get_random_paths_indexes(char **paths, int n, int m, int *indexes)
 }
 */
 
+//把paths中的图片打乱。
 char **get_random_paths(char **paths, int n, int m)
 {
     char **random_paths = calloc(n, sizeof(char*));
     int i;
-    pthread_mutex_lock(&mutex);
-    for(i = 0; i < n; ++i){
-        int index = rand()%m;
+    pthread_mutex_lock(&mutex);//加互斥锁，还有别的线程会同时进行图片的打乱么？
+    for(i = 0; i < n; ++i){//一个加载的
+        int index = rand()%m; //emmmm.....    那如果随机到一样的了怎么办。
         random_paths[i] = paths[index];
         //if(i == 0) printf("%s\n", paths[index]);
     }
-    pthread_mutex_unlock(&mutex);
+    pthread_mutex_unlock(&mutex);//解锁。
     return random_paths;
 }
 
@@ -955,6 +956,7 @@ data load_data_swag(char **paths, int n, int classes, float jitter)
     return d;
 }
 
+//加载检测数据
 data load_data_detection(int n, char **paths, int m, int w, int h, int boxes, int classes, float jitter, float hue, float saturation, float exposure)
 {
     char **random_paths = get_random_paths(paths, n, m);
@@ -962,11 +964,11 @@ data load_data_detection(int n, char **paths, int m, int w, int h, int boxes, in
     data d = {0};
     d.shallow = 0;
 
-    d.X.rows = n;
+    d.X.rows = n;//一次加载的图片数目
     d.X.vals = calloc(d.X.rows, sizeof(float*));
     d.X.cols = h*w*3;
 
-    d.y = make_matrix(n, 5*boxes);
+    d.y = make_matrix(n, 5*boxes);//终于找到你了。
     for(i = 0; i < n; ++i){
         image orig = load_image_color(random_paths[i], 0, 0);
         image sized = make_image(w, h, orig.c);
@@ -1075,13 +1077,15 @@ void *load_threads(void *ptr)
     pthread_t *threads = calloc(args.threads, sizeof(pthread_t));
     for(i = 0; i < args.threads; ++i){
         args.d = buffers + i;
-        args.n = (i+1) * total/args.threads - i * total/args.threads; //emmmm 这有点神奇吧。。。 args.n = total / args.threads ????
+        args.n = (i+1) * total/args.threads - i * total/args.threads;
+        //emmmm 这有点神奇吧。。。 args.n = total / args.threads ????、
+        // -->一次要加载的数据数量除以线程数 = 每个线程要加载多多少数据。
         threads[i] = load_data_in_thread(args);
     }
     for(i = 0; i < args.threads; ++i){
         pthread_join(threads[i], 0);//等待上面所有的线程都结束
     }
-    *out = concat_datas(buffers, args.threads);
+    *out = concat_datas(buffers, args.threads);//把不同线程加载进来的数据拼接到一起。
     out->shallow = 0;
     for(i = 0; i < args.threads; ++i){
         buffers[i].shallow = 1;
@@ -1099,7 +1103,8 @@ void load_data_blocking(load_args args)
     load_thread(ptr);
 }
 
-pthread_t load_data(load_args args)// 创建以个线程，使用传进来的args 调用load_thresds
+// 创建以个线程，使用传进来的args 调用load_thresds
+pthread_t load_data(load_args args)
 {
     pthread_t thread;
     struct load_args *ptr = calloc(1, sizeof(struct load_args));

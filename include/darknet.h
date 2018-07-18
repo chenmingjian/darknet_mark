@@ -141,7 +141,7 @@ struct layer{
     int h,w,c;
     int out_h, out_w, out_c;
     int n; //带表当前层中预测的box的个数。
-    int max_boxes;
+    int max_boxes;//bbox的个数？
     int groups;
     int size;
     int side;
@@ -542,6 +542,7 @@ typedef struct{
     box **boxes;
 } data;//目测是用于训练的DATA，包括 长宽、输入的数据、输出的数据、？
 
+//数据类型，目前只了解DETECTION_DATA。
 typedef enum {
     CLASSIFICATION_DATA, DETECTION_DATA, CAPTCHA_DATA, REGION_DATA, IMAGE_DATA, COMPARE_DATA, WRITING_DATA, SWAG_DATA, TAG_DATA, OLD_CLASSIFICATION_DATA, STUDY_DATA, DET_DATA, SUPER_DATA, LETTERBOX_DATA, REGRESSION_DATA, SEGMENTATION_DATA, INSTANCE_DATA
 } data_type;
@@ -550,8 +551,8 @@ typedef struct load_args{//参数结构
     int threads;
     char **paths;
     char *path;
-    int n;//代表层数？
-    int m;
+    int n;// 一次加载图片个数目。
+    int m;//所有数据的数量，即一个epoch的图片的数量。
     char **labels;
     int h;
     int w;
@@ -559,7 +560,7 @@ typedef struct load_args{//参数结构
     int out_h;
     int nh;
     int nw;
-    int num_boxes;
+    int num_boxes;//会加载的boxex数目？
     int min, max, size;//?
     int classes;
     int background;
