@@ -346,6 +346,7 @@ void rotate_image_cw(image im, int times)
     }
 }
 
+//左右翻转图片
 void flip_image(image a)
 {
     int i,j,k;
@@ -524,6 +525,7 @@ image copy_image(image p)
     return copy;
 }
 
+//？
 void rgbgr_image(image im)
 {
     int i;
@@ -617,6 +619,7 @@ image ipl_to_image(IplImage* src)
     return out;
 }
 
+//使用OpenCV加载图片。
 image load_image_cv(char *filename, int channels)
 {
     IplImage* src = 0;
@@ -749,6 +752,7 @@ image make_empty_image(int w, int h, int c)
     return out;
 }
 
+//创建图片
 image make_image(int w, int h, int c)
 {
     image out = make_empty_image(w,h,c);
@@ -774,6 +778,7 @@ image float_to_image(int w, int h, int c, float *data)
     return out;
 }
 
+//把中的im中的图片放到 canvas中去
 void place_image(image im, int w, int h, int dx, int dy, image canvas)
 {
     int x, y, c;
@@ -836,6 +841,7 @@ image rotate_image(image im, float rad)
     return rot;
 }
 
+//填充图片用0.5填充。
 void fill_image(image m, float s)
 {
     int i;
@@ -1344,6 +1350,7 @@ void saturate_exposure_image(image im, float sat, float exposure)
     constrain_image(im);
 }
 
+//把图片resize
 image resize_image(image im, int w, int h)
 {
     image resized = make_image(w, h, im.c);   
@@ -1463,6 +1470,7 @@ image load_image_stb(char *filename, int channels)
     return im;
 }
 
+//加载图片
 image load_image(char *filename, int w, int h, int c)
 {
 #ifdef OPENCV
@@ -1471,7 +1479,7 @@ image load_image(char *filename, int w, int h, int c)
     image out = load_image_stb(filename, c);
 #endif
 
-    if((h && w) && (h != out.h || w != out.w)){
+    if((h && w) && (h != out.h || w != out.w)){//如果加载的图片和参数要求的不一样，resize
         image resized = resize_image(out, w, h);
         free_image(out);
         out = resized;
@@ -1479,6 +1487,7 @@ image load_image(char *filename, int w, int h, int c)
     return out;
 }
 
+//加载彩色图片。
 image load_image_color(char *filename, int w, int h)
 {
     return load_image(filename, w, h, 3);

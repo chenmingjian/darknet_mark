@@ -698,6 +698,7 @@ size_t rand_size_t()
         ((size_t)(rand()&0xff) << 0);
 }
 
+//随机在min 与 max之间的数。
 float rand_uniform(float min, float max)
 {
     if(max < min){

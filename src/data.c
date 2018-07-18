@@ -972,22 +972,23 @@ data load_data_detection(int n, char **paths, int m, int w, int h, int boxes, in
     for(i = 0; i < n; ++i){
         image orig = load_image_color(random_paths[i], 0, 0);
         image sized = make_image(w, h, orig.c);
-        fill_image(sized, .5);
+        fill_image(sized, .5);//这里为什么要填充？
 
-        float dw = jitter * orig.w;
+        float dw = jitter * orig.w; //数据增强中抖动变化的范围。
         float dh = jitter * orig.h;
 
-        float new_ar = (orig.w + rand_uniform(-dw, dw)) / (orig.h + rand_uniform(-dh, dh));
+        float new_ar = (orig.w + rand_uniform(-dw, dw)) / (orig.h + rand_uniform(-dh, dh));//随机新的size。
         float scale = rand_uniform(.25, 2);
 
         float nw, nh;
 
-        if(new_ar < 1){
+        //这个if的意义是什么？感觉有没有这个if都无所谓啊。
+        if(new_ar < 1){//如果出现了瘦高的图片。
             nh = scale * h;
-            nw = nh * new_ar;
+            nw = nh * new_ar; //保持new_ar中的比例。
         } else {
             nw = scale * w;
-            nh = nw / new_ar;
+            nh = nw / new_ar; //保持new_ar中的比例。
         }
 
         float dx = rand_uniform(0, w - nw);
@@ -997,7 +998,7 @@ data load_data_detection(int n, char **paths, int m, int w, int h, int boxes, in
 
         random_distort_image(sized, hue, saturation, exposure);
 
-        int flip = rand()%2;
+        int flip = rand()%2;//1/2的几率进行flip。
         if(flip) flip_image(sized);
         d.X.vals[i] = sized.data;
 
