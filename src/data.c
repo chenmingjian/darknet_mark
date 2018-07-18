@@ -406,7 +406,7 @@ void fill_truth_iseg(char *path, int num_boxes, float *truth, int classes, int w
     free_image(part);
 }
 
-
+//填充truth
 void fill_truth_detection(char *path, int num_boxes, float *truth, int classes, int flip, float dx, float dy, float sx, float sy)
 {
     char labelpath[4096];
@@ -421,7 +421,7 @@ void fill_truth_detection(char *path, int num_boxes, float *truth, int classes, 
     int count = 0;
     box_label *boxes = read_boxes(labelpath, &count);
     randomize_boxes(boxes, count);
-    correct_boxes(boxes, count, dx, dy, sx, sy, flip);
+    correct_boxes(boxes, count, dx, dy, sx, sy, flip);//修正box
     if(count > num_boxes) count = num_boxes;
     float x,y,w,h;
     int id;
