@@ -140,7 +140,7 @@ struct layer{
     int truths;//truth的个数。
     int h,w,c;
     int out_h, out_w, out_c;
-    int n; //带表当前层中预测的box的个数。
+    int n; //带表当前层中预测的box的个数。 emmmm.....好像卷积核的个数。
     int max_boxes;//bbox的个数？
     int groups;
     int size;

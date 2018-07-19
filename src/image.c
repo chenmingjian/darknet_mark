@@ -1483,6 +1483,7 @@ image load_image(char *filename, int w, int h, int c)
         image resized = resize_image(out, w, h);
         free_image(out);
         out = resized;
+        cvShowImage(out);
     }
     return out;
 }

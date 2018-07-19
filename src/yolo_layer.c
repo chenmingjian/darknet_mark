@@ -22,7 +22,7 @@ layer make_yolo_layer(int batch, int w, int h, int n, int total, int *mask, int 
     l.batch = batch;
     l.h = h;
     l.w = w;
-    l.c = n*(classes + 4 + 1);//c代表组最后输出的张量的个数么？-->啊最后一层的channel个数！
+    l.c = n*(classes + 4 + 1);//最后一层的channel个数！
     l.out_w = l.w;
     l.out_h = l.h;
     l.out_c = l.c;
