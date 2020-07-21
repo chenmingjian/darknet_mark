@@ -16,3 +16,5 @@ For questions or issues please use the [Google Group](https://groups.google.com/
 $$
 \frac{1}{2}
 $$
+
+$x^4$
